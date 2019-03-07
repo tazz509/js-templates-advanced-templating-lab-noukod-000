@@ -1,51 +1,68 @@
-function init() {
-  //put any page initialization/handlebars initialization here
-
-  Handlebars.registerPartial('recipeDetailsPartial', document.getElementById('recipe-details-partial').innerHTML);
-  Handlebars.registerHelper('displayIngredient', function(ingredient) {
-    return new Handlebars.SafeString('<li name="ingredients">' + ingredient + '</li>');
-  })
-
-  let formTemplate = document.getElementById("recipe-form-template").innerHTML;
-  let formTemplateFn = Handlebars.compile(formTemplate);
-  document.getElementById('main').innerHTML = formTemplateFn({ingredients: ['','','','','']});
-
+function initForm() {
+  var formTemplate = document.getElementById("recipe-form-template").innerHTML
+  var template = Handlebars.compile(formTemplate)
+  document.getElementsByTagName("main")[0].innerHTML = template({'submitAction': 'createRecipe()'})
 }
 
-function handleSubmit() {
-  let recipe = {}
-  let rName = document.getElementById('name');
-  let rDesc = document.getElementById('description');
-  let rIngr = document.getElementsByName('ingredients');
+function createRecipe() {
+  var recipe = getRecipeVals()
+  var recipeTemplate = document.getElementById("recipe-template").innerHTML
+  var template = Handlebars.compile(recipeTemplate)
+  document.getElementById("main").innerHTML = template(recipe)
+}
 
-  recipe.name = rName.value;
-  recipe.description = rDesc.value;
-  recipe.ingredients = [];
-  for(let i = 0; i < rIngr.length; i++) {
-    recipe.ingredients.push(rIngr[i].value);
-  }
-  let recipeTemplate = document.getElementById('recipe-template').innerHTML;
-  let recipeFunction = Handlebars.compile(recipeTemplate);
-  document.getElementById('main').innerHTML = recipeFunction(recipe);
+function updateRecipe() {
+  var recipe = getRecipeVals()
+  var recipeTemplate = document.getElementById("recipe-template").innerHTML
+  var template = Handlebars.compile(recipeTemplate)
+  document.getElementById("main").innerHTML = template(recipe)
 }
 
 function displayEditForm() {
-  let recipe = {}
-  let rName = document.getElementById('recipeName');
-  let rDesc = document.getElementById('recipeDescription');
-  let rIngr = document.getElementsByName('ingredients');
+  var name = document.getElementById("nameHeader").innerText
+  var description = document.getElementById("recipeDescription").innerText
+  var ingredientsNodes = document.getElementsByName("ingredientsList")
+  var ingredients = []
+  for(var i=0;i<ingredientsNodes.length;i++) {
+    ingredients.push(ingredientsNodes[i].innerText)
+  }
 
-  recipe.name = rName.innerHTML;
-  recipe.description = rDesc.innerHTML;
-  recipe.ingredients = [];
-  for(let i = 0; i < rIngr.length; i++) {
-    recipe.ingredients.push(rIngr[i].innerHTML);
-}
-  let recipeTemplate = document.getElementById('recipe-form-template').innerHTML;
-  let recipeFunction = Handlebars.compile(recipeTemplate);
-  document.getElementById('main').innerHTML = recipeFunction(recipe);
+  var recipe = {'name': name, 'description': description, 'ingredients': ingredients, 'submitAction': 'createRecipe()'}
+
+  var recipeFormTemplate = document.getElementById("recipe-form-template").innerHTML
+  var template = Handlebars.compile(recipeFormTemplate)
+  document.getElementById("main").innerHTML = template(recipe)
 }
 
+function getRecipeVals() {
+  var ingredientsNodes = document.getElementsByName("ingredients")
+  var ingredients = []
+  for(var i=0;i<ingredientsNodes.length;i++) {
+    if(ingredientsNodes[i].value !== "") {
+      ingredients.push(ingredientsNodes[i].value)
+    }
+  }
+  var name = document.getElementById("name").value
+  var description = document.getElementById("description").value
+  var recipe = {'name': name, 'ingredients': ingredients, 'description': description}
+  return(recipe)
+}
+
+function handlebarsSetup() {
+  //put any handlebars registrations here.
+  Handlebars.registerHelper('displayIngredient', function(ingredient) {
+    return new Handlebars.SafeString('<li name="ingredientsList">' + ingredient + '</li>')
+  })
+  Handlebars.registerPartial('recipeDetailsPartial', document.getElementById("recipe-details-partial").innerHTML)
+  Handlebars.registerPartial('recipeFormPartial', document.getElementById("recipe-form-partial").innerHTML)
+}
+
+
+function init() {
+  //put any page initialization/handlebars initialization here
+  handlebarsSetup()
+  initForm()
+}
 document.addEventListener("DOMContentLoaded", function(event) {
   init()
 })
